@@ -1,26 +1,43 @@
 import { useEffect, useRef, useState } from "react";
+import style from "./style.module.scss";
 
-const Field = ({ focus, id, paste }) => {
+const Field = ({ focus, id, paste, setAllInputs }) => {
   const [value, setValue] = useState("");
   const inputRef = useRef(null);
   const valueRef = useRef("");
   const { focusNumber, setFocusNumber } = focus;
   const { pastedValue, setPaste } = paste;
+  const { inputedCode, setInputedCode } = setAllInputs;
   //
   useEffect(() => {
     pastedValue[0].length === 4 ? setValue(pastedValue[0][id - 1]) : null;
   }, [pastedValue]);
   //
+  const inputedCode_updaterFunc = (x) => {
+    const y = [...x];
+    y[id - 1] = value;
+    return y;
+  };
+  const inputedCodeRemover_updaterFunc = (x) => {
+    const y = x.slice(0, id - 1);
+    // y.slice(id-1);
+    return y;
+  };
   useEffect(() => {
     value.length > valueRef.current.length &&
       id !== 4 &&
       setFocusNumber((x) => x + 1);
     valueRef.current = value;
+    value.length > 0
+      ? setInputedCode(inputedCode_updaterFunc)
+      : setInputedCode(inputedCodeRemover_updaterFunc);
   }, [value]);
+  //
+
   //
   useEffect(() => {
     focusNumber === id && inputRef.current.focus();
-    console.log(focusNumber);
+    // console.log(focusNumber);
   }, [focusNumber]);
   //
   const handle_1digitVal = (e) => {
@@ -35,7 +52,7 @@ const Field = ({ focus, id, paste }) => {
   // const handleInputCursor = (e) => e.target.setSelectionRange(0, 0);
 
   return (
-    <div>
+    <div className={style.fieldContainer}>
       <form>
         <input
           type="text"
@@ -49,7 +66,7 @@ const Field = ({ focus, id, paste }) => {
           }}
           onKeyDown={(e) => {
             if (e.key === "Backspace" && value.length === 0) {
-              e.preventDefault();
+              // e.preventDefault();
               setFocusNumber((x) => (id !== 1 ? x - 1 : 1));
             } else if (/\d/.test(e.key)) {
               value.length !== 0 &&
@@ -58,6 +75,9 @@ const Field = ({ focus, id, paste }) => {
           }}
         />
       </form>
+      {/* <button
+        onClick={() => setInputedCode({ number: Math.random() })}
+      ></button> */}
     </div>
   );
 };
